@@ -1,0 +1,116 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+typedef struct
+{
+     int data[20];
+     int length;
+}SqList;
+ 
+ 
+void CreateLists(SqList *&L,int a[ ],int n)
+{
+   int i;
+   L = (SqList * )malloc(sizeof(SqList));
+   for(i = 0 ; i < n ; i++)
+       L->data[i] = a[i];
+   L->length = n;
+}
+
+void Prints(SqList *L)
+{
+    int i;
+    for(i = 0; i < L ->length; i++)
+        printf("%d",L->data[i]);
+    printf("\n");
+}
+
+//Q6 设计一个同样功能的高效算法,用于删除整数顺序表 L 中所有值在[x，y]范围内的元素
+void Q6(SqList *&L,int x,int y)
+{
+	int i,j=0;
+	for (i=0;i<L->length;i++)
+		if (!(L->data[i]>=x && L->data[i]<=y)) 
+		{ 
+		  L->data[j]=L->data[i]; 
+		  j++; 
+		}
+    L->length=j; 
+}
+
+//Q7 设计一个算法，将元素x插入到一个有序（从小到大排序）顺序表的适当位置上，并保持有序性。 
+void Q7(SqList *&L,int x) 
+{ 
+    int i=0,j;  
+    while (i<L->length && L->data[i]<x) 
+        i++;  
+    for (j=L->length-1;j>=i;j--)  
+        L->data[j+1]=L->data[j];  
+    L->data[i]=x; 
+	L->length++; 
+} 
+
+
+//Q8  假设一个顺序表 L 中所有元素为整数，设计一个算法调整该顺序表，使其中所有小于零的元素放在所有大于等于零的元素的前面
+void Q8(SqList *&L) 
+{ 
+    int i=0,j=L->length-1;  
+	while (i<j)  
+	{ 
+	  while (L->data[i]<0) i++;   
+	  while (L->data[j]>=0) j--;
+	  if (i<j)
+	  {
+  		int t;
+  		t=L->data[i];
+  		L->data[i]=L->data[j];
+  		L->data[j]=t;
+  	   }
+	}
+}
+
+
+int main()
+{
+	int cmd;
+	SqList *L1,*L2,*L3;
+    //以数组a[5]、数组b[5]、数组c[5]为例 
+	int a[5]={0,2,8,6,4};
+	int b[5]={0,2,4,6,8};
+	int c[5]={2,-3,5,8,-7}; 
+	
+	int y=2, z=6; int r=3;
+	
+
+	printf("\t**********************************\n");
+	printf("\t********   P72 6-8题   *********\n");
+	printf("\t**********************************\n");
+	while(1){
+	printf("\n输入题号（6-8）：（输入0退出。）\n");
+	scanf("%d",&cmd);
+	switch(cmd)
+	{
+		case 6: CreateLists(L1,a,5);
+		        printf("操作前线性表元素：\n"); Prints(L1);
+		        printf("要删除的顺序表中的元素所有值在[%d，%d]范围内。\n",y,z);
+                  Q6(L1,y,z);
+                printf("操作后线性表元素：\n"); Prints(L1); break;
+        case 7: CreateLists(L2,b,5);
+		        printf("操作前线性表元素：\n"); Prints(L2); 
+		        printf("要插入的元素是: %d\n",r);
+                  Q7(L2,r);
+                printf("操作后线性表元素：\n"); Prints(L2); break;
+        case 8: CreateLists(L3,c,5);
+		        printf("操作前线性表元素：\n"); Prints(L3);
+	              Q8(L3);
+                printf("操作后线性表元素：\n"); Prints(L3); break;
+        case 0: return 0;
+        
+        default: printf("错误！\n");
+                 break;
+                 
+	}; 
+  }
+      return 0;
+}

@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <malloc.h>
+#define maxqnode 10     //队列的个数 
+typedef struct node 
+{ 
+	int data;  
+    struct node *next; 
+} qnode; 
+void input(qnode *quh[],qnode *qut[],int x)  //将 x 插入到相应队列中 
+{ 
+	qnode *s;  
+	s=(qnode *)malloc(sizeof(qnode)); //创建一个结点 s  
+	s->data=x; 
+	s->next=NULL;  
+	if (quh[x]==NULL)     //x 号队列为空队时  
+	{ 
+		quh[x]=s;   
+		qut[x]=s;  
+	} 
+	else        //x 号队列不空队时  
+	{ 
+		qut[x]->next=s;    //将 s 结点链到 qut[x]所指结点之后   
+		qut[x]=s;      //让 qut[x]仍指向尾结点  
+	} 
+} 
+
+void create(qnode *quh[], qnode *qut[]) 
+{ 
+	int n,x,i;  
+	printf("输入n个10以内的数,先输入n，再依次输入其它数:");  
+	scanf_s("%d",&n);  
+	for (i=0;i<n;i++)  
+	{
+		do 
+		{ 
+			printf("请输入第%d个数:", i + 1);    
+			scanf_s("%d", &x); 
+		} while (x < 0 || x>10);  
+		input(quh, qut, x);
+	}
+}
+
+void destroylist(qnode *&head)   
+{ 
+	qnode *pre=head,*p=pre->next;
+    while (p!=NULL)  
+    {   
+	  free(pre);   
+      pre=p; 
+      p=p->next;  
+    }  
+	free(pre); 
+} 
+
+void displist(qnode *head)
+{
+	printf("\n链已建立完毕，现输出所有元素:");  
+	while (head != NULL) 
+	{ 
+		printf("%d ", head->data);   
+		head = head->next; 
+	}  
+	printf("\n");
+}
+
+qnode *link(qnode *quh[], qnode *qut[]) //将非空队列链接起来并输出 
+{ 
+	qnode *head=NULL,*tail = NULL;    //总链表的首结点指针和尾结点指针  
+	int i;  
+	for (i=0;i<maxqnode;i++)   //扫描所有队列   
+		if (quh[i]!=NULL)    //i 号队列不空     
+		{ 
+			if (head==NULL)   //若 i 号队列为第一个非空队列    
+			{ 
+				head=quh[i];     
+				tail=qut[i];    
+			}    
+			else      //若 i 号队列不是第一个非空队列    
+			{ 
+				tail->next=quh[i];     
+				tail=qut[i];    
+			}   
+		}  
+	tail->next=NULL;  
+	return head; 
+} 
+
+int main() 
+{
+	int a;
+	int i;  
+	qnode *head;  
+	qnode *quh[maxqnode], *qut[maxqnode]; //各队列的队头 quh 和队尾指针 qut  
+	for (i=0;i< maxqnode;i++)
+		quh[i]=qut[i]=NULL;  
+	create(quh,qut);    
+	head=link(quh,qut);   
+	displist(head);     
+	destroylist(head);     
+	printf("完成，输入任意数字并回车关闭程序");
+	scanf_s("%d", &a);
+	return 0; 
+} 

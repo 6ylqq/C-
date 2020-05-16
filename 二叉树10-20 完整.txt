@@ -1,0 +1,375 @@
+
+#include<math.h>
+#include<stdlib.h>
+#include<string.h>
+#include<stdio.h>
+#include<stdbool.h>
+#include<ctype.h>
+#include<cstdio>
+#define maxsize 100
+typedef struct node
+{
+	//int a = 10;什么用？
+	char data;
+	struct node* lchild;
+	struct node* rchild;
+}btnode;
+
+typedef char sqbtree[maxsize];
+
+void createbtree(char* str, btnode*& b)//由顺序结构生成链式结构
+{
+	btnode* st[1000], *p = NULL;//生成栈
+	int top = -1, k, j = 0;//j为str数组的第j个
+	char ch;
+	b = NULL;//链式二叉树头
+	ch = str[j];
+	while (ch != '\0')
+	{
+		switch (ch)
+		{
+		case'(':top++; st[top] = p; k = 1; break;
+		case')':top--; break;
+		case',':k = 2; break;
+		case'#': break;                             //可去
+		default:p = (btnode*)malloc(sizeof(btnode));//若为数值
+			p->data = ch;
+			p->lchild = p->rchild = NULL;
+			if (b == NULL)
+				b = p;
+			else
+			{
+				switch (k)
+				{
+				case 1:st[top]->lchild = p; break;
+				case 2:st[top]->rchild = p; break;
+				}
+			}
+			break;
+		}
+		j++;
+		ch = str[j];
+	}
+}
+
+
+//10 将一棵以二叉链方式存储 的二叉树 b 转换成对应的顺序存储结构 a
+void Bian(btnode *b, sqbtree m, int i)
+{
+	if (b != NULL) {
+		m[i] = b->data;
+		Bian(b->lchild, m, 2 * i);
+		Bian(b->rchild, m, 2 * i + 1);
+	}
+	else m[i] = '#';
+}
+
+//11 求顺序二叉树 t 中的叶子结点个数
+int yeshu(sqbtree b, int i)
+{
+	int s = 0, s1, s2 = 0;
+	if (i < maxsize)
+	{
+		if (b[i] != '#')
+		{
+			if (b[2 * i] == '#' && b[2 * i + 1] == '#')
+				s++;
+			else
+			{
+				s1 = yeshu(b, 2 * i);
+				s2 = yeshu(b, 2 * i + 1);
+				s += s1 + s2;
+			}
+			return s;
+		}
+		else
+			return 0;
+	}
+	else
+		return 0;
+}
+
+//12 计算一棵给定二叉树 b 中的所有单分支结点个数
+int SinBraNode(btnode *b)
+{
+	int n, n1, n2;
+	if (b == NULL)
+		return 0;
+	else if ((b->lchild == NULL && b->rchild != NULL) || (b->lchild != NULL && b->rchild == NULL))
+		n = 1;
+	else
+		n = 0;
+	n1 = SinBraNode(b->lchild);
+	n2 = SinBraNode(b->rchild);
+	return (n1 + n2 + n);
+}
+
+//13 求二叉树 b 中最小值的结点值
+void minfind(btnode *b, char &min)//找到最小结点 
+{
+	if (b != NULL)
+	{
+		if (b->data < min)
+			min = b->data;
+		minfind(b->lchild, min);
+		minfind(b->rchild, min);
+	}
+	
+}
+void printmin(btnode *b)//打印值 
+{
+	if (b != NULL)
+	{
+		char min = b->data;
+		minfind(b, min);
+		printf("13.该二叉树的最小值的结点值为%c\n", min);
+	}
+}
+
+
+//14.将二叉链 b1 复制到二叉链 b2 中
+void Copy(btnode *b1, btnode *&b2)
+{
+	if (b1 == NULL)
+	{
+		b2 = NULL;
+		return ;
+	}
+	else
+	{
+		b2 = (btnode *)malloc(sizeof(btnode));
+		b2->data = b1->data;
+		Copy(b1->lchild, b2->lchild);
+		Copy(b1->rchild, b2->rchild);
+	}
+}
+
+//15. 二叉树 b 中第 k 层上叶子结点个数
+int L1(btnode *b, int k, int s) //返回得到结点个数
+{
+	int n1, n2, n = 0;
+	if (b != NULL)
+	{
+		if (s == k && b->lchild == NULL && b->rchild == NULL)
+			n++;
+		n1 = L1(b->lchild, k, s + 1);
+		n2 = L1(b->rchild, k, s + 1);
+		n += n1 + n2;
+		return n;
+	}
+	return 0;
+}
+int L2(btnode *b, int k) //返回二叉树 b 中第 k 层上叶子结点个数 
+{
+	return L1(b, k, 1);
+}
+
+//16. 判断值为 x 的结点与值为 y 的结点是否互为兄弟，假设这样的结点值是唯一的
+bool XD(btnode *b, char x, char y)
+{
+	bool flag;
+	if (b == NULL)
+		return false;
+	else
+	{
+		if (b->lchild != NULL && b->rchild != NULL)
+		{
+			if ((b->lchild->data == x && b->rchild->data == y)
+				|| (b->lchild->data == y && b->rchild->data == x))
+				return true;
+		}
+		flag = XD(b->lchild, x, y);
+		if (flag == true)
+			return true;
+		else
+			return XD(b->rchild, x, y);
+	}
+}
+
+//17. 先序遍历方法求二叉树 b 中值为 x 的结点的子孙，假设值为 x 的结点是唯一的。 
+void Output(btnode *s)   //输出以 s 为根结点的子树****副
+{
+	if (s != NULL)
+	{
+		printf("%c ", s->data);
+		Output(s->lchild);
+		Output(s->rchild);
+	}
+}
+void Child(btnode *b, char x) //输出 x 结点的子孙*****主
+{
+	if (b != NULL)
+	{
+		if (b->data == x)
+		{
+			if (b->lchild != NULL)
+				Output(b->lchild);
+			if (b->rchild != NULL)
+				Output(b->rchild);
+			return;
+		}
+		Child(b->lchild, x);
+		Child(b->rchild, x);
+	}
+}
+
+//18. 把二叉树 b 的左、右子树进行交 换。要求不破坏原二叉树。并用相关数据进行测试。 
+void huan(btnode *b, btnode *&b1)
+{
+	if (b == NULL)
+		b1 = NULL;
+	else
+	{
+		b1 = (btnode *)malloc(sizeof(btnode));
+		b1->data = b->data;
+		huan(b->lchild, b1->rchild);
+		huan(b->rchild, b1->lchild);
+	}
+}
+
+void dispbtree(btnode * b)//链式结构 输出二叉树
+{
+	if (b != NULL)
+	{
+		printf("%c", b->data);
+		if (b->lchild != NULL || b->rchild != NULL)
+		{
+			printf("(");
+			dispbtree(b->lchild);
+			if (b->rchild != NULL)
+				printf(",");
+			dispbtree(b->rchild);
+			printf(")");
+		}
+	}
+}
+
+//19.  判断一棵二叉树 b 的左、右子树 是否同构。 
+bool tong(btnode *b1, btnode *b2)
+{
+	if (b1 == NULL && b2 == NULL)
+		return true;
+	else if (b1 == NULL || b2 == NULL)
+		return false;
+	else
+		return (tong(b1->lchild, b2->lchild) & tong(b1->rchild, b2->rchild));
+}
+bool tongfou(btnode *b)  //主
+{
+	if (b == NULL)
+		return true;
+	else
+		return tong(b->lchild, b->rchild);
+}
+
+//20.，判断一棵二叉树 b 是否为完全二叉树
+bool wanquanerchashu(btnode *b)
+{
+	int front = 0, rear = 0;
+	btnode *Qu[100], *p;
+	bool c = true;
+	bool d = true;
+	if (b == NULL)
+		return true;
+	rear++;
+	Qu[rear] = b;
+	while (front != rear)
+	{
+		front = (front + 1) % 100;
+		p = Qu[front];
+		if (p->lchild == NULL)
+		{
+			d = false;
+			if (p->rchild != NULL)
+				c = false;
+		}
+		else
+		{
+			if (!d)
+				c = false;
+			rear = (rear + 1) % 100;
+			Qu[rear] = p->lchild;
+			if (p->rchild == NULL)
+				d = false;
+			else
+			{
+				rear = (rear + 1) % 100;
+				Qu[rear] = p->rchild;
+			}
+		}
+	}
+	return c;
+}
+
+//***************************************主函数*********************************************//
+int main()
+{
+	sqbtree *q;
+	btnode* b;
+	btnode* b2;
+	btnode* b3;
+	char s[100] = { '\0' };
+	int i;
+	int k;
+	char x, y;
+	char z;
+	printf("输入二叉树的顺序结构：\n");
+	scanf("%s", s);//例如  A(B(D,E),C(F,G(,I)))  2(4(6,8),1(3,5(,9)))
+	createbtree(s, b);
+	q = (sqbtree*)malloc(sizeof(sqbtree));
+	printf("10.将一棵以二叉链方式存储的二叉树转换成对应的顺序存储结构\n");
+	Bian(b, *q, 1);
+	printf("完成转化\n");
+
+	printf("采用顺序存储结构存储，求二叉树 t 中的叶子结点个数\n");
+	printf("%d\n", yeshu(*q, 1));
+
+	printf("12.该二叉树的所有单分支结点个数为%d\n", SinBraNode(b));
+
+	printmin(b);//13 求二叉树 b 中最小值的结点值
+
+	printf("14.将二叉链 b1 复制到二叉链 b2 中\n");
+	Copy(b, b2);
+	dispbtree(b2);
+	printf("copy完成！\n");//copy完成！这里缺打印 这传值不行！--解决 混用了==和=
+
+	printf("15.该二叉树的第 k 层上叶子结点个数，请输入k的值\n");
+	scanf("%d",&k);
+	printf("该二叉树的第 k 层上叶子结点个数为%d\n", L2(b,  k));
+
+	printf("16. 判断值为 x 的结点与值为 y 的结点是否互为兄弟，假设这样的结点值是唯一的,请输入x和y的值\n");
+	scanf("%s %s", &x,&y);//为什么是s呢?
+	if (XD(b, x, y))
+		printf("是\n");
+	else
+		printf("否\n");
+
+	printf("17. 先序遍历方法求二叉树 b 中值为 z 的结点的子孙，假设值为 z 的结点是唯一的,请输入z\n");
+	scanf("%s", &z);
+	Child(b, z);
+
+	printf("18. 把二叉树 b 的左、右子树进行交 换。要求不破坏原二叉树。并用相关数据进行测试\n");
+	huan(b, b3);
+	dispbtree(b);
+	printf("\n");
+	dispbtree(b3);
+	printf("\n");
+
+	printf("19.判断一棵二叉树 b 的左、右子树 是否同构\n");
+	if (tongfou(b))
+		printf("是\n");
+	else
+		printf("否\n");
+
+	printf("20.，判断一棵二叉树 b 是否为完全二叉树\n");
+	if (wanquanerchashu(b))
+		printf("是\n");
+	else
+		printf("否\n");
+
+	
+
+
+	printf("完成");
+	return 0;
+}
